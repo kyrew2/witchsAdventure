@@ -27,8 +27,8 @@ posicaoBruxaX = 100
 posicaoBruxaY = 500
 movimentoBruxaX = 0
 movimentoBruxaY = 0
+gravidade = 1
 pula = False
-
 
 
 #Loop Principal do Jogo
@@ -51,13 +51,17 @@ while rodando:
             movimentoBruxaY -=20
         elif evento.type == pygame.KEYUP and evento.key == pygame.K_UP:
             pula = False
-            movimentoBruxaY += 30
+            movimentoBruxaY += 20
 
 
     posicaoBruxaX +=movimentoBruxaX
     posicaoBruxaY +=movimentoBruxaY
     
-
+    pygame.draw.rect(tela, branco, (5000, 550, 1000, 150)) #desenha o chão
+    if pula:
+        movimentoBruxaY += gravidade
+    else:
+        movimentoBruxaY = 0
     tela.fill(preto)
     tela.blit(bruxa, (posicaoBruxaX, posicaoBruxaY))
 
