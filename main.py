@@ -22,29 +22,46 @@ relogio = pygame.time.Clock()
 
 
 #jogador
-bruxa = pygame.image.load("recursos/bruxa.png")
+fundo = pygame.image.load("recursos/fundo.png")
+fundo = pygame.transform.scale(fundo, (fase, 1000))
+bruxaParada = pygame.image.load("recursos/bruxaV2.png")
+bruxaParada = pygame.transform.scale(bruxaParada, (60, 80))
+bruxaFrameAndando1 = pygame.image.load("recursos/bruxaAnda.png")
+bruxaFrameAndando1 = pygame.transform.scale(bruxaFrameAndando1, (60, 80))
+bruxaFrameAndando2 = pygame.image.load("recursos/bruxaAnda2.png")
+bruxaFrameAndando2 = pygame.transform.scale(bruxaFrameAndando2, (60, 80))
+bruxaVirada = False
+cameraBruxa = 0
+
+framesAndando = [bruxaParada, bruxaFrameAndando1, bruxaFrameAndando2]
+frame = 0
+contaAnimação = 0
+velocidadeAnimação = 7
+
+#Posição e movimento da bruxa
 posicaoBruxaX = 100
 posicaoBruxaY = 500
 movimentoBruxaX = 0
 movimentoBruxaY = 0
+
+#Gravidade e pulo
 gravidade = 1
+pula = False
+
+#Chão da fase
 chaoY = 600
 chaoFase = pygame.Rect(0, chaoY, fase, 100)
 
-
-pula = False
-
-
-#Loop Principal do Jogo
+#Loop Principal do Jogo 
 rodando = True
 while rodando:
     for evento in pygame.event.get():
         if evento.type == pygame.QUIT:
             rodando = False
         elif evento.type == pygame.KEYDOWN and evento.key == pygame.K_RIGHT:
-            movimentoBruxaX = 15
+            movimentoBruxaX = 5
         elif evento.type == pygame.KEYDOWN and evento.key == pygame.K_LEFT:
-            movimentoBruxaX = -15
+            movimentoBruxaX = -5
         elif evento.type == pygame.KEYUP and (evento.key == pygame.K_RIGHT or evento.key == pygame.K_LEFT):
             movimentoBruxaX = 0  
         elif evento.type == pygame.KEYUP and evento.key == pygame.K_LEFT:     
@@ -53,19 +70,58 @@ while rodando:
             pula = True
             movimentoBruxaY = -20
 
+    #Frames (na tela) da bruxa
+    if movimentoBruxaX != 0:
+        contaAnimação += 1
+        if contaAnimação >= velocidadeAnimação:
+            contaAnimação = 0
+            frame = (frame + 1) % len(framesAndando)
+        bruxa  = framesAndando[frame]
+    else:
+        bruxa = bruxaParada
+        frame = 0
+        contaAnimação = 0
+    
+    if movimentoBruxaX < 0:
+        bruxaVirada = True
+    elif movimentoBruxaX > 0:
+        bruxaVirada = False
+
+    #Atualiza a posição da bruxa
     movimentoBruxaY += gravidade
     posicaoBruxaX +=movimentoBruxaX
     posicaoBruxaY +=movimentoBruxaY
-    colisaoBruxa = pygame.Rect(posicaoBruxaX, posicaoBruxaY, bruxa.get_width(), bruxa.get_height())
+    if posicaoBruxaX > fase:
+        posicaoBruxaX = fase
+    elif posicaoBruxaX < 0:
+        posicaoBruxaX = 0
+        
+
+    #Colisão da Bruxa com o chão
+    colisaoBruxa = pygame.Rect(posicaoBruxaX, posicaoBruxaY, bruxaParada.get_width(), bruxaParada.get_height()) #Colisão da Bruxa
     if colisaoBruxa.colliderect(chaoFase):
         posicaoBruxaY = chaoY - bruxa.get_height()
         movimentoBruxaY = 0
         pula = False
-
-
-    tela.fill(preto)
-    pygame.draw.rect(tela, branco, chaoFase)
-    tela.blit(bruxa, (posicaoBruxaX, posicaoBruxaY))
     
+    cameraBruxa = posicaoBruxaX - 350
+    if cameraBruxa < 0:
+        cameraBruxa = 0
+    elif cameraBruxa > fase - 1000:
+        cameraBruxa = fase - 1000
+
+
+        
+
+    #Mostra na tela
+    tela.blit(fundo, (-cameraBruxa, 0))
+    pygame.draw.rect(tela, branco, (chaoFase.x - cameraBruxa, chaoFase.y, chaoFase.width, chaoFase.height))  # Desenha o chão
+    if bruxaVirada:
+        mostraBruxa = pygame.transform.flip(bruxa, True, False)
+    else:
+        mostraBruxa = bruxa
+    tela.blit(mostraBruxa, (posicaoBruxaX - cameraBruxa, posicaoBruxaY))
+
+    #Atualiza a tela e limita o FPS
     pygame.display.flip()
-    relogio.tick(60) #Limita a 60 FPS
+    relogio.tick(60)
