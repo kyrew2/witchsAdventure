@@ -11,15 +11,13 @@ pygame.init()
 tela = pygame.display.set_mode((1000, 700))
 pygame.display.set_caption("Jogo de plataforma")
 
-fase = 5000
-
 #Cores
 preto = (0, 0, 0)
 branco = (255,  255, 255)
 amarelo = (255, 255, 0)
 
 relogio = pygame.time.Clock()
-
+fase = 5000
 
 
 #jogador
@@ -41,59 +39,62 @@ frame = 0
 contaAnimação = 0
 velocidadeAnimação = 7
 
-#Posição e movimento da bruxa
-posicaoBruxaX = 100
-posicaoBruxaY = 500
-movimentoBruxaX = 0
-movimentoBruxaY = 0
+def resetarJogo():
+    global posicaoBruxaX, posicaoBruxaY, movimentoBruxaX, movimentoBruxaY, pula, magias, velocidadeMagia, gravidade, chaoFase, segundoChaoFase, plataformas, inimigos, patrulhaInimigos, direcaoInimigos, moedas
+    #Posição e movimento da bruxa
+    posicaoBruxaX = 100
+    posicaoBruxaY = 500
+    movimentoBruxaX = 0
+    movimentoBruxaY = 0
 
-magias = []
-velocidadeMagia = 10
+    magias = []
+    velocidadeMagia = 10
 
-#Gravidade e pulo
-gravidade = 1
-pula = False
+    #Gravidade e pulo
+    gravidade = 1
+    pula = False
 
-#Chão e plataformas da fase
+    #Chão e plataformas da fase
 
-chaoFase = pygame.Rect(0, 600, fase, 100)
-plataformas = [
-    pygame.Rect(1000, 450, 200, 50),#plataforma 1
-    pygame.Rect(1300, 350, 700, 50),#plataforma 2
-    pygame.Rect(2200, 450, 200, 50),#plataforma 3
- ]
+    chaoFase = pygame.Rect(0, 600, 1500, 100)
+    segundoChaoFase = pygame.Rect(4000, 600, fase, 100)
+    plataformas = [
+        pygame.Rect(1000, 450, 200, 50),#plataforma 1
+        pygame.Rect(1300, 350, 700, 50),#plataforma 2
+        pygame.Rect(2180, 450, 200, 50),#plataforma 3
+    ]
 
-#inimigos
-inimigos = [
-    pygame.Rect(500, 550, 50, 50),  # inimigo 1
-    pygame.Rect(1200, 550, 50, 50), # inimigo 2
-    pygame.Rect(2000, 550, 50, 50), # inimigo 3
-    pygame.Rect(3000, 550, 50, 50), # inimigo 4
-    pygame.Rect(4000, 550, 50, 50), # inimigo 5
-    pygame.Rect(4500, 550, 50, 50), # inimigo 6  
-]
-patrulhaInimigos = [
-    (500, 900),
-    (1200, 1500),
-    (2000, 2300),
-    (3000, 3300),
-    (4000, 4300),
-    (4500, 4800)
-]
-direcaoInimigos = [1, 1, 1, 1, 1, 1]
+    #inimigos
+    inimigos = [
+        pygame.Rect(500, 550, 50, 50),  # inimigo 1
+        pygame.Rect(1200, 550, 50, 50), # inimigo 2
+        pygame.Rect(2000, 550, 50, 50), # inimigo 3
+        pygame.Rect(3000, 550, 50, 50), # inimigo 4
+        pygame.Rect(4000, 550, 50, 50), # inimigo 5
+        pygame.Rect(4500, 550, 50, 50), # inimigo 6  
+    ]
+    patrulhaInimigos = [
+        (500, 900),
+        (1200, 1500),
+        (2000, 2300),
+        (3000, 3300),
+        (4000, 4300),
+        (4500, 4800)
+    ]
+    direcaoInimigos = [1, 1, 1, 1, 1, 1]
 
 
 
-#moedas
-moedas = [
-    pygame.Rect(1100, 400, 40, 40),
-    pygame.Rect(1500, 200, 40, 40),
-    pygame.Rect(1600, 200, 40, 40),
-    pygame.Rect(1700, 200, 40, 40),
-    pygame.Rect(1800, 200, 40, 40),
-    pygame.Rect(1900, 200, 40, 40),  
-]
-
+    #moedas
+    moedas = [
+        pygame.Rect(1100, 400, 40, 40),
+        pygame.Rect(1500, 200, 40, 40),
+        pygame.Rect(1600, 200, 40, 40),
+        pygame.Rect(1700, 200, 40, 40),
+        pygame.Rect(1800, 200, 40, 40),
+        pygame.Rect(1900, 200, 40, 40),  
+    ]
+resetarJogo()
 #Loop Principal
 rodando = True
 while rodando:
@@ -110,11 +111,14 @@ while rodando:
             pula = True
             movimentoBruxaY = -20
         elif evento.type == pygame.KEYUP and evento.key == pygame.K_z:
-            direcao = 1 if bruxaVirada else -1
+            direcao = -1 if bruxaVirada else 1
             magiaX = posicaoBruxaX + (0 if bruxaVirada else bruxaParada.get_width())
             magiaY = posicaoBruxaY + bruxaParada.get_height() // 2
-            magias.append(pygame.Rect(magiaX, magiaY, 20, 10))
-            
+            magias.append([pygame.Rect(magiaX, magiaY, 20, 10), direcao, magiaX])
+
+        if posicaoBruxaY > 700:
+            resetarJogo()
+
     #Frames (na tela) da bruxa
     if movimentoBruxaX != 0:
         contaAnimação += 1
@@ -163,9 +167,11 @@ while rodando:
         pula = False
     
     pygame.draw.rect(tela, branco, (chaoFase.x - cameraBruxa, chaoFase.y, chaoFase.width, chaoFase.height))
+    pygame.draw.rect(tela, branco, (segundoChaoFase.x - cameraBruxa, segundoChaoFase.y, segundoChaoFase.width, segundoChaoFase.height))
     for plataforma in plataformas:
         pygame.draw.rect(tela, branco, (plataforma.x - cameraBruxa, plataforma.y, plataforma.width, plataforma.height))
-        if colisaoBruxa.colliderect(plataforma) and movimentoBruxaY >= 0:
+        if (
+            colisaoBruxa.colliderect(plataforma) and movimentoBruxaY >= 0 and posicaoBruxaY + bruxa.get_height() - movimentoBruxaY <= plataforma.y):
             posicaoBruxaY = plataforma.y - bruxa.get_height()
             movimentoBruxaY = 0
             pula = False
@@ -173,6 +179,7 @@ while rodando:
     for i,inimigo in enumerate(inimigos):
         pygame.draw.rect(tela, preto, (inimigo.x - cameraBruxa, inimigo.y, inimigo.width, inimigo.height))
         if colisaoBruxa.colliderect(inimigo):
+            resetarJogo()
             posicaoBruxaX = 100
             posicaoBruxaY = 500
             movimentoBruxaY = 0
@@ -182,26 +189,29 @@ while rodando:
         if inimigo.x < minimoX or inimigo.x > maximoX:
             direcaoInimigos[i] *= -1
     
-    for magia in magias[:]:
-        magiaColisao = pygame.Rect(magias['x'], magias['y'] - 10, 20, 20)
+    for magia, direcao, magiaInicialX in magias[:]:
+        magia.x += velocidadeMagia * direcao
+        pygame.draw.rect(tela, amarelo, (magia.x - cameraBruxa, magia.y, magia.width, magia.height))
+
+        if abs(magia.x - magiaInicialX) > 600:
+            magias.remove([magia, direcao, magiaInicialX])
+            continue
+
+        magiaColisao = pygame.Rect(magia.x, magia.y - 10, 20, 20)
         for i, inimigo in enumerate(inimigos[:]):
             if magiaColisao.colliderect(inimigo):
                 inimigos.pop(i)
                 patrulhaInimigos.pop(i)
                 direcaoInimigos.pop(i)
-                magias.remove(magia)
+                magias.remove([magia, direcao, magiaInicialX])
                 break
-        
             
 
-
-        
     for moeda in moedas:
         pygame.draw.circle(tela, amarelo, (moeda.x + moeda.width//2 - cameraBruxa, moeda.y + moeda.height//2), moeda.width//2)
         if colisaoBruxa.colliderect(moeda):
             moedas.remove(moeda)
 
-    #Desenha o chão
     if bruxaVirada:
         mostraBruxa = pygame.transform.flip(bruxa, True, False)
     else:
