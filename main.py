@@ -35,6 +35,7 @@ bruxaVirada = False
 cameraBruxa = 0
 
 
+
 framesAndando = [bruxaParada, bruxaFrameAndando1, bruxaFrameAndando2]
 frame = 0
 contaAnimação = 0
@@ -46,12 +47,14 @@ posicaoBruxaY = 500
 movimentoBruxaX = 0
 movimentoBruxaY = 0
 
+magias = []
+velocidadeMagia = 10
 
 #Gravidade e pulo
 gravidade = 1
 pula = False
 
-#Chão da fase
+#Chão e plataformas da fase
 
 chaoFase = pygame.Rect(0, 600, fase, 100)
 plataformas = [
@@ -60,6 +63,28 @@ plataformas = [
     pygame.Rect(2200, 450, 200, 50),#plataforma 3
  ]
 
+#inimigos
+inimigos = [
+    pygame.Rect(500, 550, 50, 50),  # inimigo 1
+    pygame.Rect(1200, 550, 50, 50), # inimigo 2
+    pygame.Rect(2000, 550, 50, 50), # inimigo 3
+    pygame.Rect(3000, 550, 50, 50), # inimigo 4
+    pygame.Rect(4000, 550, 50, 50), # inimigo 5
+    pygame.Rect(4500, 550, 50, 50), # inimigo 6  
+]
+patrulhaInimigos = [
+    (500, 900),
+    (1200, 1500),
+    (2000, 2300),
+    (3000, 3300),
+    (4000, 4300),
+    (4500, 4800)
+]
+direcaoInimigos = [1, 1, 1, 1, 1, 1]
+
+
+
+#moedas
 moedas = [
     pygame.Rect(1100, 400, 40, 40),
     pygame.Rect(1500, 200, 40, 40),
@@ -69,7 +94,7 @@ moedas = [
     pygame.Rect(1900, 200, 40, 40),  
 ]
 
-#Loop Principal do Jogo 
+#Loop Principal
 rodando = True
 while rodando:
     for evento in pygame.event.get():
@@ -81,16 +106,16 @@ while rodando:
             movimentoBruxaX = -5
         elif evento.type == pygame.KEYUP and (evento.key == pygame.K_RIGHT or evento.key == pygame.K_LEFT):
             movimentoBruxaX = 0  
-        elif evento.type == pygame.KEYUP and evento.key == pygame.K_LEFT:     
-            movimentoBruxaX = 0
         elif evento.type == pygame.KEYDOWN and evento.key == pygame.K_UP and not pula:
             pula = True
             movimentoBruxaY = -20
+        elif evento.type == pygame.KEYUP and evento.key == pygame.K_z:
+            direcao = 1 if bruxaVirada else -1
+            magiaX = posicaoBruxaX + (0 if bruxaVirada else bruxaParada.get_width())
+            magiaY = posicaoBruxaY + bruxaParada.get_height() // 2
+            magias.append(pygame.Rect(magiaX, magiaY, 20, 10))
             
-
-
     #Frames (na tela) da bruxa
-    
     if movimentoBruxaX != 0:
         contaAnimação += 1
         if contaAnimação >= velocidadeAnimação:
@@ -108,10 +133,12 @@ while rodando:
         bruxaVirada = False
 
     #Atualiza a posição da bruxa
-    colisaoBruxa = pygame.Rect(posicaoBruxaX, posicaoBruxaY, bruxaParada.get_width(), bruxaParada.get_height())
+    
     movimentoBruxaY += gravidade
+
     posicaoBruxaX +=movimentoBruxaX
     posicaoBruxaY +=movimentoBruxaY
+
     if posicaoBruxaX > fase:
         posicaoBruxaX = fase
     elif posicaoBruxaX < 0:
@@ -119,17 +146,19 @@ while rodando:
         
 
     #Colisão da Bruxa com o chão e plataformas
+    colisaoBruxa = pygame.Rect(posicaoBruxaX, posicaoBruxaY, bruxaParada.get_width(), bruxaParada.get_height())
 
+    #configuração camera
     cameraBruxa = posicaoBruxaX - 350
     if cameraBruxa < 0:
         cameraBruxa = 0
     elif cameraBruxa > fase - 1000:
         cameraBruxa = fase - 1000
-
+    
     #Mostra na tela
     tela.blit(fundo, (-cameraBruxa, 0))
     if colisaoBruxa.colliderect(chaoFase):
-        posicaoBruxaY = 600 - bruxa.get_height()
+        posicaoBruxaY = chaoFase.y - bruxa.get_height()
         movimentoBruxaY = 0
         pula = False
     
@@ -140,15 +169,39 @@ while rodando:
             posicaoBruxaY = plataforma.y - bruxa.get_height()
             movimentoBruxaY = 0
             pula = False
+    
+    for i,inimigo in enumerate(inimigos):
+        pygame.draw.rect(tela, preto, (inimigo.x - cameraBruxa, inimigo.y, inimigo.width, inimigo.height))
+        if colisaoBruxa.colliderect(inimigo):
+            posicaoBruxaX = 100
+            posicaoBruxaY = 500
+            movimentoBruxaY = 0
+            pula = False
+        inimigo.x += direcaoInimigos[i] * 2
+        minimoX, maximoX = patrulhaInimigos[i]
+        if inimigo.x < minimoX or inimigo.x > maximoX:
+            direcaoInimigos[i] *= -1
+    
+    for magia in magias[:]:
+        magiaColisao = pygame.Rect(magias['x'], magias['y'] - 10, 20, 20)
+        for i, inimigo in enumerate(inimigos[:]):
+            if magiaColisao.colliderect(inimigo):
+                inimigos.pop(i)
+                patrulhaInimigos.pop(i)
+                direcaoInimigos.pop(i)
+                magias.remove(magia)
+                break
         
+            
 
+
+        
     for moeda in moedas:
-        pygame.draw.rect(tela, amarelo, (moeda.x - cameraBruxa, moeda.y, moeda.width, moeda.height))
+        pygame.draw.circle(tela, amarelo, (moeda.x + moeda.width//2 - cameraBruxa, moeda.y + moeda.height//2), moeda.width//2)
+        if colisaoBruxa.colliderect(moeda):
+            moedas.remove(moeda)
 
-
-
-
-      # Desenha o chão
+    #Desenha o chão
     if bruxaVirada:
         mostraBruxa = pygame.transform.flip(bruxa, True, False)
     else:
