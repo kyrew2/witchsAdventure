@@ -9,7 +9,7 @@ pygame.init()
  
 #Cria a janela do jogo
 tela = pygame.display.set_mode((1000, 700))
-pygame.display.set_caption("Jogo de plataforma")
+pygame.display.set_caption("Witch's Adventure")
 
 #Cores
 preto = (0, 0, 0)
@@ -59,40 +59,61 @@ def resetarJogo():
     chaoFase = pygame.Rect(0, 600, 1500, 100)
     segundoChaoFase = pygame.Rect(4000, 600, fase, 100)
     plataformas = [
+        pygame.Rect(0, 600, 1500, 100), #chão
+        pygame.Rect(4000, 600, fase, 100),# segundo chão
         pygame.Rect(1000, 450, 200, 50),#plataforma 1
         pygame.Rect(1300, 350, 700, 50),#plataforma 2
         pygame.Rect(2180, 450, 200, 50),#plataforma 3
+        pygame.Rect(2500, 350, 200, 50),#plataforma 4
+        pygame.Rect(2800, 390, 200, 50),#plataforma 5
+        pygame.Rect(3200, 350, 200, 50),#plataforma 6
+        pygame.Rect(3600, 490, 200, 50),#plataforma 7
+
     ]
 
     #inimigos
     inimigos = [
-        pygame.Rect(500, 550, 50, 50),  # inimigo 1
-        pygame.Rect(1200, 550, 50, 50), # inimigo 2
-        pygame.Rect(2000, 550, 50, 50), # inimigo 3
-        pygame.Rect(3000, 550, 50, 50), # inimigo 4
-        pygame.Rect(4000, 550, 50, 50), # inimigo 5
-        pygame.Rect(4500, 550, 50, 50), # inimigo 6  
+        pygame.Rect(200, 550, 50, 50),    # chão (plataforma 0)
+        pygame.Rect(1100, 400, 50, 50),   # plataforma 1
+        pygame.Rect(1400, 300, 50, 50),   # plataforma 2
+        pygame.Rect(2250, 400, 50, 50),   # plataforma 3
+        pygame.Rect(2550, 300, 50, 50),   # plataforma 4
+        pygame.Rect(2850, 340, 50, 50),   # plataforma 5
+        pygame.Rect(3250, 300, 50, 50),   # plataforma 6
+        pygame.Rect(3650, 440, 50, 50),   # plataforma 7
+        pygame.Rect(4100, 550, 50, 50),   # segundo chão (plataforma 1)
     ]
     patrulhaInimigos = [
-        (500, 900),
-        (1200, 1500),
-        (2000, 2300),
-        (3000, 3300),
-        (4000, 4300),
-        (4500, 4800)
+        (100, 600),         # chão (plataforma 0)
+        (1000, 1150),       # plataforma 1 (x, x+largura-plargura_inimigo)
+        (1300, 1950),       # plataforma 2 (1300, 1300+700-50)
+        (2180, 2330),       # plataforma 3 (2180, 2180+200-50)
+        (2500, 2650),       # plataforma 4 (2500, 2500+200-50)
+        (2800, 2950),       # plataforma 5 (2800, 2800+200-50)
+        (3200, 3350),       # plataforma 6 (3200, 3200+200-50)
+        (3600, 3750),       # plataforma 7 (3600, 3600+200-50)
+        (4000, fase-50),    # segundo chão (plataforma 1)
     ]
-    direcaoInimigos = [1, 1, 1, 1, 1, 1]
+    direcaoInimigos = [1] * len(inimigos)
 
 
 
     #moedas
     moedas = [
-        pygame.Rect(1100, 400, 40, 40),
+
+        pygame.Rect(1085, 350, 40, 40),
+        pygame.Rect(1400, 200, 40, 40),
         pygame.Rect(1500, 200, 40, 40),
         pygame.Rect(1600, 200, 40, 40),
         pygame.Rect(1700, 200, 40, 40),
         pygame.Rect(1800, 200, 40, 40),
-        pygame.Rect(1900, 200, 40, 40),  
+        pygame.Rect(1900, 200, 40, 40),
+        pygame.Rect(2220, 350, 40, 40), 
+        pygame.Rect(2300, 350, 40, 40),
+        pygame.Rect(2300, 130, 40, 40),
+        pygame.Rect(2400, 130, 40, 40),
+        pygame.Rect(2600, 200, 40, 40),
+
     ]
 resetarJogo()
 #Loop Principal
