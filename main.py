@@ -59,60 +59,66 @@ def resetarJogo():
     chaoFase = pygame.Rect(0, 600, 1500, 100)
     segundoChaoFase = pygame.Rect(4000, 600, fase, 100)
     plataformas = [
-        pygame.Rect(0, 600, 1500, 100), #chão
-        pygame.Rect(4000, 600, fase, 100),# segundo chão
-        pygame.Rect(1000, 450, 200, 50),#plataforma 1
-        pygame.Rect(1300, 350, 700, 50),#plataforma 2
-        pygame.Rect(2180, 450, 200, 50),#plataforma 3
-        pygame.Rect(2500, 350, 200, 50),#plataforma 4
-        pygame.Rect(2800, 390, 200, 50),#plataforma 5
-        pygame.Rect(3200, 350, 200, 50),#plataforma 6
-        pygame.Rect(3600, 490, 200, 50),#plataforma 7
-
+        pygame.Rect(0, 600, 1500, 100),
+        pygame.Rect(4000, 600, fase, 100),
+        pygame.Rect(1000, 450, 200, 50),
+        pygame.Rect(1300, 350, 700, 50),
+        pygame.Rect(2180, 450, 200, 50),
+        pygame.Rect(2500, 350, 200, 50),
+        pygame.Rect(2800, 390, 200, 50),
+        pygame.Rect(3200, 350, 200, 50),
+        pygame.Rect(3600, 490, 200, 50),
     ]
 
     #inimigos
     inimigos = [
-        pygame.Rect(200, 550, 50, 50),    # chão (plataforma 0)
-        pygame.Rect(1100, 400, 50, 50),   # plataforma 1
-        pygame.Rect(1400, 300, 50, 50),   # plataforma 2
-        pygame.Rect(2250, 400, 50, 50),   # plataforma 3
-        pygame.Rect(2550, 300, 50, 50),   # plataforma 4
-        pygame.Rect(2850, 340, 50, 50),   # plataforma 5
-        pygame.Rect(3250, 300, 50, 50),   # plataforma 6
-        pygame.Rect(3650, 440, 50, 50),   # plataforma 7
-        pygame.Rect(4100, 550, 50, 50),   # segundo chão (plataforma 1)
+        pygame.Rect(500, 550, 50, 50),
+        pygame.Rect(1100, 400, 50, 50),
+        pygame.Rect(1400, 300, 50, 50),
+        pygame.Rect(2250, 400, 50, 50),
+        pygame.Rect(2550, 300, 50, 50),
+        pygame.Rect(2850, 340, 50, 50),
+        pygame.Rect(3250, 300, 50, 50),
+        pygame.Rect(3650, 440, 50, 50),
     ]
     patrulhaInimigos = [
-        (100, 600),         # chão (plataforma 0)
-        (1000, 1150),       # plataforma 1 (x, x+largura-plargura_inimigo)
-        (1300, 1950),       # plataforma 2 (1300, 1300+700-50)
-        (2180, 2330),       # plataforma 3 (2180, 2180+200-50)
-        (2500, 2650),       # plataforma 4 (2500, 2500+200-50)
-        (2800, 2950),       # plataforma 5 (2800, 2800+200-50)
-        (3200, 3350),       # plataforma 6 (3200, 3200+200-50)
-        (3600, 3750),       # plataforma 7 (3600, 3600+200-50)
-        (4000, fase-50),    # segundo chão (plataforma 1)
+        (500, 1000),
+        (1000, 1150),
+        (1300, 1950),
+        (2180, 2330),
+        (2500, 2650),
+        (2800, 2950),
+        (3200, 3350),
+        (3600, 3750),
+
     ]
     direcaoInimigos = [1] * len(inimigos)
-
-
-
     #moedas
     moedas = [
 
-        pygame.Rect(1085, 350, 40, 40),
-        pygame.Rect(1400, 200, 40, 40),
-        pygame.Rect(1500, 200, 40, 40),
-        pygame.Rect(1600, 200, 40, 40),
-        pygame.Rect(1700, 200, 40, 40),
-        pygame.Rect(1800, 200, 40, 40),
-        pygame.Rect(1900, 200, 40, 40),
-        pygame.Rect(2220, 350, 40, 40), 
-        pygame.Rect(2300, 350, 40, 40),
-        pygame.Rect(2300, 130, 40, 40),
-        pygame.Rect(2400, 130, 40, 40),
-        pygame.Rect(2600, 200, 40, 40),
+        pygame.Rect(1085, 350, 40, 40),# 1
+        pygame.Rect(1550, 400, 40, 40),# 2
+        pygame.Rect(1550, 500, 40, 40),
+        pygame.Rect(1400, 200, 40, 40),# 2
+        pygame.Rect(1500, 200, 40, 40),# 2
+        pygame.Rect(1600, 200, 40, 40),# 2
+        pygame.Rect(1700, 200, 40, 40),# 2
+        pygame.Rect(1800, 200, 40, 40),# 2
+        pygame.Rect(1900, 200, 40, 40),# 2
+        pygame.Rect(2220, 350, 40, 40),# 3
+        pygame.Rect(2300, 350, 40, 40),# 3
+        pygame.Rect(2300, 130, 40, 40),#=
+        pygame.Rect(2530, 250, 40, 40),
+        pygame.Rect(2630, 250, 40, 40),
+        pygame.Rect(2850, 130, 40, 40),
+        pygame.Rect(2840, 300, 40, 40),
+        pygame.Rect(2920, 300, 40, 40),
+        pygame.Rect(3100, 130, 40, 40),
+        pygame.Rect(3220, 300, 40, 40),
+        pygame.Rect(3340, 300, 40, 40),
+        pygame.Rect(3630, 400, 40, 40),
+        pygame.Rect(3730, 400, 40, 40),
+        pygame.Rect(3950, 240, 40, 40),
 
     ]
 resetarJogo()
@@ -189,6 +195,8 @@ while rodando:
     
     pygame.draw.rect(tela, branco, (chaoFase.x - cameraBruxa, chaoFase.y, chaoFase.width, chaoFase.height))
     pygame.draw.rect(tela, branco, (segundoChaoFase.x - cameraBruxa, segundoChaoFase.y, segundoChaoFase.width, segundoChaoFase.height))
+
+    #Colisão da bruxa com chão e plataformas
     for plataforma in plataformas:
         pygame.draw.rect(tela, branco, (plataforma.x - cameraBruxa, plataforma.y, plataforma.width, plataforma.height))
         if (
@@ -197,6 +205,7 @@ while rodando:
             movimentoBruxaY = 0
             pula = False
     
+    #Colisão da bruxa com o inimigos
     for i,inimigo in enumerate(inimigos):
         pygame.draw.rect(tela, preto, (inimigo.x - cameraBruxa, inimigo.y, inimigo.width, inimigo.height))
         if colisaoBruxa.colliderect(inimigo):
@@ -210,6 +219,7 @@ while rodando:
         if inimigo.x < minimoX or inimigo.x > maximoX:
             direcaoInimigos[i] *= -1
     
+    #Desenha e atualiza as magias
     for magia, direcao, magiaInicialX in magias[:]:
         magia.x += velocidadeMagia * direcao
         pygame.draw.rect(tela, amarelo, (magia.x - cameraBruxa, magia.y, magia.width, magia.height))
@@ -227,7 +237,7 @@ while rodando:
                 magias.remove([magia, direcao, magiaInicialX])
                 break
             
-
+    #Desenha e colisão das moedas           
     for moeda in moedas:
         pygame.draw.circle(tela, amarelo, (moeda.x + moeda.width//2 - cameraBruxa, moeda.y + moeda.height//2), moeda.width//2)
         if colisaoBruxa.colliderect(moeda):
