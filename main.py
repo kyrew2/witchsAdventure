@@ -26,7 +26,7 @@ fase = 5000
 
 
 fundo = pygame.image.load("recursos/fundo.png")
-fundo = pygame.transform.scale(fundo, (fase, 1000))
+fundo = pygame.transform.scale(fundo, (fase, 700))
 bruxaParada = pygame.image.load("recursos/bruxaV2.png")
 bruxaParada = pygame.transform.scale(bruxaParada, (60, 80))
 bruxaFrameAndando1 = pygame.image.load("recursos/bruxaAnda.png")
@@ -40,6 +40,15 @@ iconeStartSelecionado = pygame.transform.scale(iconeStartSelecionado, (200, 180)
 iconeMorte = pygame.image.load("recursos/iconeMorte.png")
 iconeMorte = pygame.transform.scale(iconeMorte, (200, 180))
 telaPause = pygame.image.load("recursos/telaPause.png")
+telaFim = pygame.image.load("recursos/telaFim.png")
+telaFim = pygame.transform.scale(telaFim, (400, 300))
+chaoImg = pygame.image.load("recursos/chao.png")
+chaoImg = pygame.transform.scale(chaoImg, (1500, 100))
+plataformaImgs = [
+    pygame.transform.scale(pygame.image.load("recursos/plataforma1.png"), (200, 50)),
+    pygame.transform.scale(pygame.image.load("recursos/plataforma2.png"), (200, 50))
+]
+
 
 tamanhoMoedaX = 30
 tamanhoMoedaY = 40
@@ -68,6 +77,9 @@ contaAnimacaoMagia = 0
 velocidadeAnimacaoMagia = 5
 bruxaVirada = False
 cameraBruxa = 0
+
+framesGargulaEsquerda = [pygame.transform.scale(pygame.image.load(f"recursos/gargulaFrame{i}.png"), (100, 80)) for i in range(1, 5)]
+framesGargulaDireita = [pygame.transform.flip(frame, True, False) for frame in framesGargulaEsquerda]
 
 
 
@@ -107,7 +119,7 @@ def menuJogo():
     inputAtivo = False
 
     while rodandoMenu:
-        tela.fill((roxo))
+        tela.fill((preto))
         mousePosicao = pygame.mouse.get_pos()
         mouseClick = pygame.mouse.get_pressed()[0]
 
@@ -160,6 +172,31 @@ def menuJogo():
 
     return nomeJogador
 
+def telaFimJogo(nomeJogador, pontos):
+    salvarLog(nomeJogador, pontos)
+    fonteTitulo = pygame.font.SysFont(None, 72)
+    fonteLog = pygame.font.SysFont(None, 24)
+    logs = lerLogs()
+    rodando = True
+
+    while rodando:
+        tela.fill((0, 0, 0))
+        tela.blit(telaFim, (300, 200))
+        textoFim = fonteTitulo.render("Parabéns!", True, (255, 255, 0))
+        tela.blit(textoFim, (tela.get_width() // 2 - textoFim.get_width() // 2, 100))
+        tela.blit(fonteLog.render("Últimas 5 partidas:", True, (255, 255, 0)), (30, 30))
+        for i, linha in enumerate(logs):
+            tela.blit(fonteLog.render(linha.strip(), True, (255, 255, 255)), (30, 60 + i * 30))
+        textoContinuar = fonteLog.render("Clique para jogar novamente", True, (255, 255, 255))
+        tela.blit(textoContinuar, (tela.get_width() // 2 - textoContinuar.get_width() // 2, 600))
+        pygame.display.flip()
+        for evento in pygame.event.get():
+            if evento.type == pygame.QUIT:
+                pygame.quit()
+                exit()
+            if evento.type == pygame.MOUSEBUTTONDOWN:
+                rodando = False
+
 def telaMorte(nomeJogador, pontos):
     salvarLog(nomeJogador, pontos)
     fonteTitulo = pygame.font.SysFont(None, 72)
@@ -168,7 +205,7 @@ def telaMorte(nomeJogador, pontos):
     rodando = True
 
     while rodando:
-        tela.fill((roxo))
+        tela.fill((preto))
         textoMorte = fonteTitulo.render("Você Morreu!", True, (roxo2))
         tela.blit(iconeMorte, (370, 300))
         tela.blit(textoMorte, (tela.get_width() // 2 - textoMorte.get_width() // 2, 100))
@@ -206,7 +243,8 @@ def pausarJogo():
 def resetarJogo():
     global velocidadeAnimacaoMagia, contaAnimacaoMagia, frameMagia, velocidadeAnimacaoMoeda, contaAnimacaoMoeda, frameMoeda, posicaoBruxaX, posicaoBruxaY, movimentoBruxaX
     global movimentoBruxaY, pula, magias, velocidadeMagia, gravidade, chaoFase, segundoChaoFase, plataformas, inimigos, patrulhaInimigos, direcaoInimigos, moedas, pontos
-    
+    global gargulaFramesAtuais, gargulaDirecaoAnim, gargulaContadorAnim, velocidadeAnimGargula
+    # ...restante do código...
     pontos = 0
     #Posição e movimento da bruxa
     posicaoBruxaX = 100
@@ -223,9 +261,9 @@ def resetarJogo():
     pula = False
 
     #Chão e plataformas da fase
-
-    chaoFase = pygame.Rect(0, 600, 1500, 100)
-    segundoChaoFase = pygame.Rect(4000, 600, fase, 100)
+    gramaChao = 20
+    chaoFase = pygame.Rect(0, 600 + gramaChao, 1500, 100)
+    segundoChaoFase = pygame.Rect(4000, 600 + gramaChao, fase, 100)
     plataformas = [
         pygame.Rect(0, 600, 1500, 100),
         pygame.Rect(4000, 600, fase, 100),
@@ -240,14 +278,14 @@ def resetarJogo():
 
     #inimigos
     inimigos = [
-        pygame.Rect(500, 550, 50, 50),
-        pygame.Rect(1100, 400, 50, 50),
-        pygame.Rect(1400, 300, 50, 50),
-        pygame.Rect(2250, 400, 50, 50),
-        pygame.Rect(2550, 300, 50, 50),
-        pygame.Rect(2850, 340, 50, 50),
-        pygame.Rect(3250, 300, 50, 50),
-        pygame.Rect(3650, 440, 50, 50),
+        pygame.Rect(500, 510, 100, 80),
+        pygame.Rect(1100, 360, 100, 80),
+        pygame.Rect(1400, 270, 100, 80),
+        pygame.Rect(2250, 360, 100, 80),
+        pygame.Rect(2550, 260, 100, 80),
+        pygame.Rect(2850, 300, 100, 80),
+        pygame.Rect(3250, 250, 100, 80),
+        pygame.Rect(3650, 410, 100, 80),
     ]
     patrulhaInimigos = [
         (500, 1000),
@@ -289,6 +327,10 @@ def resetarJogo():
         pygame.Rect(3950, 240, tamanhoMoedaX, tamanhoMoedaY),
 
     ]
+    gargulaFramesAtuais = [0] * len(inimigos)
+    gargulaDirecaoAnim = [1] * len(inimigos)  # 1 para frente, -1 para trás
+    gargulaContadorAnim = [0] * len(inimigos)
+    velocidadeAnimGargula = 7
 while True:
     nomeJogador = menuJogo()
     resetarJogo()
@@ -345,9 +387,7 @@ while True:
         posicaoBruxaX +=movimentoBruxaX
         posicaoBruxaY +=movimentoBruxaY
 
-        if posicaoBruxaX > fase:
-            posicaoBruxaX = fase
-        elif posicaoBruxaX < 0:
+        if posicaoBruxaX < 0:
             posicaoBruxaX = 0
             
 
@@ -369,22 +409,45 @@ while True:
             posicaoBruxaY = chaoFase.y - bruxa.get_height()
             movimentoBruxaY = 0
             pula = False
+        elif colisaoBruxa.colliderect(segundoChaoFase):
+            posicaoBruxaY = segundoChaoFase.y - bruxa.get_height()
+            movimentoBruxaY = 0
+            pula = False
+
         
-        pygame.draw.rect(tela, branco, (chaoFase.x - cameraBruxa, chaoFase.y, chaoFase.width, chaoFase.height))
-        pygame.draw.rect(tela, branco, (segundoChaoFase.x - cameraBruxa, segundoChaoFase.y, segundoChaoFase.width, segundoChaoFase.height))
+        tela.blit(chaoImg, (chaoFase.x - cameraBruxa, 600))
+        tela.blit(chaoImg, (segundoChaoFase.x - cameraBruxa, 600))
+
 
         #Colisão da bruxa com chão e plataformas
-        for plataforma in plataformas:
-            pygame.draw.rect(tela, branco, (plataforma.x - cameraBruxa, plataforma.y, plataforma.width, plataforma.height))
-            if (
-                colisaoBruxa.colliderect(plataforma) and movimentoBruxaY >= 0 and posicaoBruxaY + bruxa.get_height() - movimentoBruxaY <= plataforma.y):
+        for idx, plataforma in enumerate(plataformas[2:]):
+            img = plataformaImgs[idx % len(plataformaImgs)]
+            largura, altura = plataforma.width, plataforma.height
+            x = plataforma.x - cameraBruxa
+            y = plataforma.y
+            for offset in range(0, largura, img.get_width()):
+                tela.blit(img, (x + offset, y))
+            if (colisaoBruxa.colliderect(plataforma) and movimentoBruxaY >= 0 and posicaoBruxaY + bruxa.get_height() - movimentoBruxaY <= plataforma.y):
                 posicaoBruxaY = plataforma.y - bruxa.get_height()
                 movimentoBruxaY = 0
                 pula = False
         
         #Colisão da bruxa com o inimigos
-        for i,inimigo in enumerate(inimigos):
-            pygame.draw.rect(tela, preto, (inimigo.x - cameraBruxa, inimigo.y, inimigo.width, inimigo.height))
+        for i, inimigo in enumerate(inimigos):
+            # Atualiza animação do gárgula
+            gargulaContadorAnim[i] += 1
+            if gargulaContadorAnim[i] >= velocidadeAnimGargula:
+                gargulaContadorAnim[i] = 0
+                gargulaFramesAtuais[i] += gargulaDirecaoAnim[i]
+                if gargulaFramesAtuais[i] == len(framesGargulaEsquerda) - 1 or gargulaFramesAtuais[i] == 0:
+                    gargulaDirecaoAnim[i] *= -1
+
+            # Use a lista correta!
+            if direcaoInimigos[i] == -1:
+                frameGargula = framesGargulaEsquerda[gargulaFramesAtuais[i]]
+            else:
+                frameGargula = framesGargulaDireita[gargulaFramesAtuais[i]]
+            tela.blit(frameGargula, (inimigo.x - cameraBruxa, inimigo.y))
             if colisaoBruxa.colliderect(inimigo):
                 telaMorte(nomeJogador, pontos)
                 rodando = False
@@ -407,19 +470,21 @@ while True:
             tela.blit(frame, (magia[0].x - cameraBruxa, magia[0].y))
             magia[0].x += magia[1] * 10
             
-            if magia[0].x < 0 or magia[0].x > fase:
+            if magia[0].x < 0 or magia[0].x > fase or abs(magia[0].x - magia[2]) > 400:
                 magias.remove(magia)
 
-            magiaColisao = pygame.Rect(magia[0].x, magia[0].y, tamanhoMagia, tamanhoMagia)
+            magiaColisao = pygame.Rect(magia[0].x, magia[0].y, 15, 20)
             for i, inimigo in enumerate(inimigos[:]):
                 if magiaColisao.colliderect(inimigo):
                     inimigos.pop(i)
                     patrulhaInimigos.pop(i)
                     direcaoInimigos.pop(i)
+                    gargulaFramesAtuais.pop(i)
+                    gargulaDirecaoAnim.pop(i)
+                    gargulaContadorAnim.pop(i)
                     if magia in magias:
                         magias.remove(magia)
-                    pontos += 1
-                    break
+                    pontos += 1  # <-- Adicione esta linha
                 
         #Desenha e colisão das moedas  
         contaAnimacaoMoeda += 1
@@ -448,6 +513,10 @@ while True:
         fontePause = pygame.font.SysFont(None, 24)
         textoPause = fontePause.render("Press SPACE to Pause Game", True, (200, 200, 200))
         tela.blit(textoPause, (textoPontos.get_width() + 35, 26))
+        ultimaPlataforma = plataformas[-1]
+        if posicaoBruxaX >= fase - 300 and colisaoBruxa.colliderect(segundoChaoFase):
+            telaFimJogo(nomeJogador, pontos)
+            rodando = False
         #Atualiza a tela e limita o FPS
         tempo = pygame.time.get_ticks() / 1000
         desenharVagalumes(tela, tempo, cameraBruxa, vagalumes)
