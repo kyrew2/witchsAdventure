@@ -1,6 +1,7 @@
 # Importa as bibliotecas necessárias
 import pygame
 from recursos.funcoes import lerLogs, salvarLog
+from recursos.reconhecerFala import  reconhecerFala, falarNome
 import math
 import random
 
@@ -48,8 +49,10 @@ plataformaImgs = [
     pygame.transform.scale(pygame.image.load("recursos/plataforma1.png"), (200, 50)),
     pygame.transform.scale(pygame.image.load("recursos/plataforma2.png"), (200, 50))
 ]
-
-
+nuvemImgs = [
+    pygame.transform.scale(pygame.image.load("recursos/nuvem1.png"), (120, 70)),
+    pygame.transform.scale(pygame.image.load("recursos/nuvem2.png"), (100, 60))
+]
 tamanhoMoedaX = 30
 tamanhoMoedaY = 40
 framesMoeda = [
@@ -99,6 +102,15 @@ for _ in range(numVagalumes):
     cor = (255, 255, random.randint(120, 200))  # tom amarelado
     vagalumes.append({'x': x, 'y': y, 'raio': raio, 'offset': offset, 'cor': cor})
 
+numNuvens = 8
+nuvens = []
+for _ in range(numNuvens):
+    img = random.choice(nuvemImgs)
+    x = random.randint(0, fase)
+    y = random.randint(30, 180)
+    velocidade = random.uniform(0.3, 1.2)
+    nuvens.append({'img': img, 'x': x, 'y': y, 'vel': velocidade})
+
 def desenharVagalumes(tela, tempo, cameraBruxa, vagalumes):
     for v in vagalumes:
         raio = int(v['raio'] + 2 * math.sin(tempo * 2 + v['offset']))
@@ -108,6 +120,15 @@ def desenharVagalumes(tela, tempo, cameraBruxa, vagalumes):
         pygame.draw.circle(haloSurface, (*v['cor'], 60), (raio * 2, raio * 2), int(raio * 1.7))
         tela.blit(haloSurface, (xTela - raio * 2, yTela - raio * 2))
         pygame.draw.circle(tela, v['cor'], (int(xTela), int(yTela)), raio)
+
+def desenharNuvens(tela, cameraBruxa, nuvens, fase):
+    for nuvem in nuvens:
+        nuvem['x'] += nuvem['vel']
+        if nuvem['x'] > fase + 200:
+            nuvem['x'] = -random.randint(100, 300)
+            nuvem['y'] = random.randint(30, 180)
+            nuvem['vel'] = random.uniform(0.3, 1.2)
+        tela.blit(nuvem['img'], (nuvem['x'] - cameraBruxa, nuvem['y']))
 
 
 def menuJogo():
@@ -146,6 +167,9 @@ def menuJogo():
         textoStart = fonteTutorial.render("Use as setas para controlar a bruxa e Z para atirar", True, (branco))
         tela.blit(textoStart, (tela.get_width() // 2 - textoStart.get_width() // 2, iconeColisao.bottom + 20))
 
+        textoVoz = fonteTutorial.render("F1: Falar nome | F2: Ouvir nome", True, (branco))
+        tela.blit(textoVoz, (tela.get_width() // 2 - textoVoz.get_width() // 2, inputColisao.bottom + 10))
+
         pygame.display.flip()
         for evento in pygame.event.get():
             if evento.type == pygame.QUIT:
@@ -157,6 +181,15 @@ def menuJogo():
                         inputAtivo = False
                     elif evento.key == pygame.K_BACKSPACE:
                         nomeJogador = nomeJogador[:-1]
+                    elif evento.key == pygame.K_F1:
+                        nomeFalado = reconhecerFala()
+                        if nomeFalado:
+                            nomeJogador = nomeFalado
+                    elif evento.key == pygame.K_F2:
+                        if nomeJogador.strip():
+                            pygame.display.iconify()  # Minimiza a janela para evitar conflito de áudio
+                            falarNome(nomeJogador)
+                            pygame.display.set_mode((1000, 700))  # Restaura a janela
                     else:
                         if len(nomeJogador) < 16 and evento.unicode.isprintable():
                             nomeJogador += evento.unicode
@@ -268,7 +301,7 @@ def resetarJogo():
         pygame.Rect(0, 600, 1500, 100),
         pygame.Rect(4000, 600, fase, 100),
         pygame.Rect(1000, 450, 200, 50),
-        pygame.Rect(1300, 350, 700, 50),
+        pygame.Rect(1300, 350, 790, 50),
         pygame.Rect(2180, 450, 200, 50),
         pygame.Rect(2500, 350, 200, 50),
         pygame.Rect(2800, 390, 200, 50),
@@ -296,7 +329,6 @@ def resetarJogo():
         (2800, 2950),
         (3200, 3350),
         (3600, 3750),
-
     ]
     direcaoInimigos = [1] * len(inimigos)
     #moedas
@@ -405,6 +437,7 @@ while True:
         parallax = 0.3
         offsetFundo = int(cameraBruxa * parallax)
         tela.blit(fundo, (-offsetFundo, 0))
+        desenharNuvens(tela, cameraBruxa, nuvens, fase)
         if colisaoBruxa.colliderect(chaoFase):
             posicaoBruxaY = chaoFase.y - bruxa.get_height()
             movimentoBruxaY = 0
