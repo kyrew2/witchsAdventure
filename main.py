@@ -8,6 +8,15 @@ import random
 
 #inicializa o pygame
 pygame.init()
+pygame.mixer.init()
+
+try:
+    somMoeda = pygame.mixer.Sound("recursos/somMoeda.wav")
+    somMagia = pygame.mixer.Sound("recursos/somMagia.wav")
+except pygame.error as e:
+    print(f"Não foi possível carregar um ou mais sons: {e}")
+    somMoeda = None
+    somMagia = None
  
 #Cria a janela do jogo
 tela = pygame.display.set_mode((1000, 700))
@@ -132,12 +141,19 @@ def desenharNuvens(tela, cameraBruxa, nuvens, fase):
 
 
 def menuJogo():
+    
+              
     fonteTitulo = pygame.font.SysFont(None, 78)
     fonteTutorial = pygame.font.SysFont(None, 48)
     fonteInput = pygame.font.SysFont(None, 48)
     rodandoMenu = True
     nomeJogador = ""
     inputAtivo = False
+    try:
+        pygame.mixer.music.load("recursos/musicaMenu.mp3")
+        pygame.mixer.music.play(loops=-1) # O -1 faz a música tocar em loop infinito
+    except pygame.error as e:
+        print(f"Não foi possível carregar a música do menu: {e}")
 
     while rodandoMenu:
         tela.fill((preto))
@@ -202,7 +218,7 @@ def menuJogo():
                     inputAtivo = True
                 else:
                     inputAtivo = False
-
+    pygame.mixer.music.fadeout(500)
     return nomeJogador
 
 def telaFimJogo(nomeJogador, pontos):
@@ -210,6 +226,13 @@ def telaFimJogo(nomeJogador, pontos):
     fonteTitulo = pygame.font.SysFont(None, 72)
     fonteLog = pygame.font.SysFont(None, 24)
     logs = lerLogs()
+    pygame.mixer.music.stop() # Para a música do jogo
+    try:
+        # Você pode usar a música de morte ou uma música de vitória aqui
+        pygame.mixer.music.load("recursos/musicaMorte.mp3") 
+        pygame.mixer.music.play(loops=-1)
+    except pygame.error as e:
+        print(f"Não foi possível carregar a música da tela final: {e}")
     rodando = True
 
     while rodando:
@@ -228,6 +251,7 @@ def telaFimJogo(nomeJogador, pontos):
                 pygame.quit()
                 exit()
             if evento.type == pygame.MOUSEBUTTONDOWN:
+                pygame.mixer.music.stop()
                 rodando = False
 
 def telaMorte(nomeJogador, pontos):
@@ -235,8 +259,13 @@ def telaMorte(nomeJogador, pontos):
     fonteTitulo = pygame.font.SysFont(None, 72)
     fonteLog = pygame.font.SysFont(None, 15)
     logs = lerLogs()
+    pygame.mixer.music.stop()
+    try:
+        pygame.mixer.music.load("recursos/musicaMorte.mp3")
+        pygame.mixer.music.play(loops=-1)
+    except pygame.error as e:
+        print(f"Não foi possível carregar a música de morte: {e}")
     rodando = True
-
     while rodando:
         tela.fill((preto))
         textoMorte = fonteTitulo.render("Você Morreu!", True, (roxo2))
@@ -253,6 +282,7 @@ def telaMorte(nomeJogador, pontos):
                 pygame.quit()
                 exit()
             if evento.type == pygame.MOUSEBUTTONDOWN:
+                pygame.mixer.music.stop()
                 rodando = False  
 def pausarJogo():
     pausado = True
@@ -367,6 +397,12 @@ while True:
     nomeJogador = menuJogo()
     resetarJogo()
 
+    try:
+        pygame.mixer.music.load("recursos/musicaJogo.mp3")
+        pygame.mixer.music.play(loops=-1)
+    except pygame.error as e:
+        print(f"Não foi possível carregar a música do jogo: {e}")
+
     rodando = True
     while rodando:
         for evento in pygame.event.get():
@@ -387,6 +423,8 @@ while True:
                 magiaX = posicaoBruxaX + (0 if bruxaVirada else bruxaParada.get_width())
                 magiaY = posicaoBruxaY + bruxaParada.get_height() // 2
                 magias.append([pygame.Rect(magiaX, magiaY, tamanhoMagia, tamanhoMagia), direcao, magiaX, 0, 0])
+                if somMagia:
+                    somMagia.play()
             elif evento.type == pygame.KEYDOWN and evento.key == pygame.K_SPACE:
                 pausarJogo()
                 
@@ -531,6 +569,8 @@ while True:
             moedaColisao = pygame.Rect(moeda.x, moeda.y, tamanhoMoedaX, tamanhoMoedaY)
             tela.blit(framesMoeda[frameMoeda], (moeda.x - cameraBruxa, moeda.y))
             if colisaoBruxa.colliderect(moeda):
+                if somMoeda:
+                    somMoeda.play()
                 moedas.remove(moeda)
                 pontos += 1
 
