@@ -17,7 +17,15 @@ except pygame.error as e:
     print(f"Não foi possível carregar um ou mais sons: {e}")
     somMoeda = None
     somMagia = None
- 
+
+try:
+    iconeJogo = pygame.image.load("recursos/iconeBruxa.ico")
+except pygame.error as e:
+    print(f"Erro ao carregar o ícone da janela: {e}")
+    iconeJogo = None
+if iconeJogo:
+    pygame.display.set_icon(iconeJogo)
+
 #Cria a janela do jogo
 tela = pygame.display.set_mode((1000, 700))
 pygame.display.set_caption("Witch's Adventure")
