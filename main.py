@@ -198,9 +198,11 @@ def menuJogo():
                     elif evento.key == pygame.K_BACKSPACE:
                         nomeJogador = nomeJogador[:-1]
                     elif evento.key == pygame.K_F1:
+                        pygame.mixer.pause()
                         nomeFalado = reconhecerFala()
                         if nomeFalado:
                             nomeJogador = nomeFalado
+                        pygame.mixer.unpause()
                     elif evento.key == pygame.K_F2:
                         if nomeJogador.strip():
                             pygame.display.iconify()  # Minimiza a janela para evitar conflito de áudio
