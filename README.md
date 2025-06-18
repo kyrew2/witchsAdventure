@@ -5,7 +5,7 @@
 * Desenvolvedor: Pedro Henrique Piccoli Franceschi
 * RA: 1137855
 * Orientador: Prof. Marcos Santos
-* Testador: (indefinido)
+* Testador: Guilherme Matte Embarach. RA: 1137953
 ---
 #### Controles:
 * **Mover:** Use as setas para ESQUERDA e DIREITA para mover a bruxa.
